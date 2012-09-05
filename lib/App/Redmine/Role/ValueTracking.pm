@@ -1,29 +1,48 @@
 package App::Redmine::Role::ValueTracking;
 
-use 5.010;
+use 5.008;
 use strict;
 use warnings;
 use namespace::autoclean;
 
 use Moose::Role;
-use MooseX::Types::Moose qw(Int);
+use MooseX::Types::Common::String qw(NonEmptySimpleStr);
 
 # ABSTRACT:  Value tracking for App::Redmine fields
 # VERSION
 
-has id      => (
-	isa       => Int,
+#### Object Attributes ####
+
+has name    => (
+	isa       => NonEmptySimpleStr,
 	is        => 'ro',
-	required  => 1,
+	required  => 0,
+	predicate => 'has_name',
 	lazy      => 0,
 );
 
-has name    => (
-	isa       => Str,
-	is        => 'ro',
-	required  => 1,
-	lazy      => 0,
-);
+#### Method Modifiers ####
+
+around BUILDARGS => sub {
+	my ( $orig, $self, @args ) = @_;
+
+	if ( scalar @args == 1 ) {
+		if ( ref $args[0] eq '' ) {
+			if ( $args[0] =~ /^\d+$/x ) {
+				$args[0] = {id => $args[0] };
+			}
+			else {
+				$args[0] = { name => $args[0] };
+			}
+		}
+	}
+
+	return $self->$orig( @args );
+};
+
+#### Consumed Roles ####
+
+with 'App::Redmine::Role::IdentityTracking';
 
 1;
 
@@ -42,10 +61,8 @@ has name    => (
 	my $field = Thing->new( id => 582, name => 'blah' );
 
 	$field->id();
-	$field->set_id( 4 );
 
 	$field->name();
-	$field->set_name( 'blah' );
 
 =head1 DESCRIPTION
 
@@ -56,13 +73,11 @@ L<App::Redmine::Role::ValueTracking> provides consumers with attributes and meth
 The numeric identifier for the field
 
 	$field->id(); # get the id
-	$field->set_id( 3 ); # set the id
 
 =attr name
 
 The name identifier for the field.
 
 	$field->name(); # get the name
-	$field->set_name( 'blah' ); # set the name
 
 =cut

@@ -1,34 +1,29 @@
 package App::Redmine::Role::DateTracking;
 
-use 5.010;
+use 5.008;
 use strict;
 use warnings;
+use namespace::autoclean;
 
 use Moose::Role;
-use MooseX::Types::DateTime qw(DateTime);
 
 # ABSTRACT:  Date tracking for App::Redmine entities
 # VERSION
 
-#### Object Attributes ####
+#### Method Modifiers ####
 
-has created_on                    => (
-	isa       => DateTime,
-	is        => 'rw',
-	required  => 0,
-	predicate => 'has_creation_date',
-	writer    => 'set_created_on',
-	lazy      => 0,
-);
+around [ 'created_on', 'last_login_on' ] => sub {
+	my ( $orig, $self, @args ) = @_;
+	my $date                   = $self->$orig( @args );
+	my $tz                     = $date->time_zone();
+	my $value                  = $date->ymd( '/' )
+		. ' '
+		. $date->hms()
+		. ' '
+		. $tz->offset_as_string( $tz->offset_for_datetime( $date ) );
 
-has updated_on                    => (
-	isa       => DateTime,
-	is        => 'rw',
-	required  => 0,
-	predicate => 'has_modification_date',
-	writer    => 'set_updated_on',
-	lazy      => 0,
-);
+	return $value;
+};
 
 1;
 
@@ -44,32 +39,10 @@ has updated_on                    => (
 		with 'App::Redmine::Role::DateTracking';
 	}
 
-	my $thing = Thing->new( id => 592 );
-
-	if ( $thing->has_creation_date() ) {
-		$thing->created_on();
-	}
-	else {
-		$thing->set_created_on( '2012/08/03 23:17:25 -0500' );
-	}
-
-	if ( $thing->has_modication_date() ) {
-		$thing->updated_on();
-	}
-	else {
-		$thing->set_updated_on( '2012/08/03 23:17:25 -0500' );
-	}
+	my $thing = Thing->new();
 
 =DESCRIPTION
 
 L<App::Redmine::Role::DateTracking> provides consumers with attributes and methods pertaining to tracking identity.
-
-=attr created_on
-
-Entity creation date
-
-=attr updated_on
-
-Entity modification date
 
 =cut

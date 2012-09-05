@@ -1,11 +1,12 @@
 package App::Redmine::Role::IdentityTracking;
 
-use 5.010;
+use 5.008;
 use strict;
 use warnings;
+use namespace::autoclean;
 
 use Moose::Role;
-use MooseX::Types::Moose qw(Int Str);
+use MooseX::Types::Moose qw(Int);
 
 # ABSTRACT:  Identity tracking for App::Redmine entities
 # VERSION
@@ -18,15 +19,6 @@ has id                            => (
 	required  => 0,
 	predicate => 'has_id',
 	writer    => 'set_id',
-	lazy      => 0,
-);
-
-has description                   => (
-	isa       => Str,
-	is        => 'rw',
-	required  => 0,
-	predicate => 'has_description',
-	writer    => 'set_description',
 	lazy      => 0,
 );
 
@@ -49,9 +41,6 @@ has description                   => (
 	$thing->id();
 	$thing->set_id( 5 );
 
-	$thing->description();
-	$thing->set_description( 'blah, blah, blah...' );
-
 =DESCRIPTION
 
 L<App::Redmine::Role::IdentityTracking> provides consumers with attributes and methods pertaining to tracking identity.
@@ -59,9 +48,5 @@ L<App::Redmine::Role::IdentityTracking> provides consumers with attributes and m
 =attr id
 
 Numeric id of the entity
-
-=attr description
-
-Description of the entity
 
 =cut

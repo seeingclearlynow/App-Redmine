@@ -1,11 +1,12 @@
 package App::Redmine::Tracker;
 
-use 5.010;
+use 5.008;
 use strict;
 use warnings;
 use namespace::autoclean;
 
 use Moose;
+use MooseX::StrictConstructor;
 
 # ABSTRACT:  Tracker field in the Redmine system
 # VERSION
@@ -23,10 +24,7 @@ with qw(App::Redmine::Role::ValueTracking);
 	my $object = App::Redmine::Tracker->new( id => 2, name => 'Feature' );
 
 	$object->id();
-	$object->set_id( 1 );
-
 	$object->name();
-	$object->set_name( 'Bug' );
 
 =head1 DESCRIPTION
 
@@ -37,13 +35,11 @@ L<App::Redmine::Tracker> represents a tracker value field in the Redmine system.
 The numeric identifier for the status field
 
 	$object->id(); # get the id
-	$object->set_id( 1 ); # set the id
 
 =attr name
 
 The name identifier for the status field
 
 	$object->id(); # get the name
-	$object->set_name( 'Bug' ); # set the name
 
 =cut
